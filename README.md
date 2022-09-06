@@ -1,16 +1,54 @@
 # method_channels_flutter
 
-A new Flutter project.
+  static const channel =MethodChannel("SKS");
 
-## Getting Started
+class _MyHomePageState extends State<MyHomePage> {
 
-This project is a starting point for a Flutter application.
+  static const channel =MethodChannel("SKS");
 
-A few resources to get you started if this is your first Flutter project:
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Call Native code to show toast message:',
+            ),
+            ElevatedButton(
+              onPressed: _showToast,
+              child: const Text("Show toast"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+  Future<void> _showToast() async {
+    final int showToast = await channel.invokeMethod('showToast',<String,String>{
+      'msg':"this is a toast from flutter to android native"
+    });
+  }
+}
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+
+ private val CHANNEL = "SKS"
+    private lateinit var channel: MethodChannel
+
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+
+        channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+        channel.setMethodCallHandler { call, _ ->
+
+            var argument =call.arguments<Map<String,String>>()
+            var message = argument?.get("msg")
+
+            if (call.method == "showToast") {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
